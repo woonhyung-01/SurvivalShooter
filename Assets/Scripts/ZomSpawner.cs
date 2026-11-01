@@ -10,7 +10,6 @@ public class ZomSpawner : MonoBehaviour
 
 
     private readonly List<Zombie> zombies = new List<Zombie>();
-    private readonly List<Zombie> zombiePool = new List<Zombie>();
 
     private int wave = 0;
 
@@ -35,6 +34,8 @@ public class ZomSpawner : MonoBehaviour
         {
             CreateZombie();
         }
+        
+        
     }
     private void CreateZombie()
     {

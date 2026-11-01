@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 public class LivingEntity : MonoBehaviour, IDamageable
 {
@@ -8,10 +9,14 @@ public class LivingEntity : MonoBehaviour, IDamageable
     public bool IsDead {get; private set;}
 
     public UnityEvent OnDead;
+
+
     protected virtual void OnEnable()
     {
         IsDead = false;
         Health = startingHealth;
+
+
     }
     public virtual void OnDamage(float damage, Vector3 hitPoint, Vector3 hitNormal)
     {
@@ -20,14 +25,13 @@ public class LivingEntity : MonoBehaviour, IDamageable
         {
             return;
         }
-        Debug.Log($"피격 전: {Health}");
+        
         Health -= damage;
         if(Health <= 0f)
         {
             Health = 0f;
             Death();
         }
-        Debug.Log($"피격 후: {Health}");
     }
 
     public virtual void Death()

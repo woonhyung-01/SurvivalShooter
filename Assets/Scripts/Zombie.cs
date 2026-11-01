@@ -29,8 +29,10 @@ public class Zombie : LivingEntity
     private Animator zombieAnimator;
     private AudioSource zombieAudioSource;
 
+
     public float damage = 10;
     public float attackinerval = 1f;
+    public int score = 10;
     private float lastAttackTime;
     private Status currentStatus;
     public static readonly int IdHasTarget = Animator.StringToHash("HasTarget");
@@ -58,7 +60,7 @@ public class Zombie : LivingEntity
                     agent.isStopped = true;
                     break;
                 case Status.Die:
-                    agent.isStopped =true;
+                    agent.isStopped = true;
                     zombieAnimator.SetTrigger(IdDie);
                     zombieCollider.enabled = false;
                     zombieAudioSource.PlayOneShot(deathClip);
@@ -72,6 +74,7 @@ public class Zombie : LivingEntity
         startingHealth = data.maxHp;
         damage = data.damage;
         agent.speed = data.speed;
+        score = data.score;
     }
     private void Awake()
     {
@@ -86,7 +89,7 @@ public class Zombie : LivingEntity
 
         agent.enabled = true;
 
-        if(NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 10f, NavMesh.AllAreas))
+        if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 10f, NavMesh.AllAreas))
         {
             agent.Warp(hit.position);
         }
@@ -107,30 +110,30 @@ public class Zombie : LivingEntity
     private void Update()
     {
         switch (currentStatus)
-            {
-                case Status.Idle:
-                    UpdateIdle();
-                    break;
-                case Status.Trace:
-                    UpdateTrace();
-                    break;
-                case Status.Attack:
-                    UpdateAttack();
-                    break;
-                case Status.Die:
-                    break;
-            }
+        {
+            case Status.Idle:
+                UpdateIdle();
+                break;
+            case Status.Trace:
+                UpdateTrace();
+                break;
+            case Status.Attack:
+                UpdateAttack();
+                break;
+            case Status.Die:
+                break;
+        }
     }
 
     private void UpdateAttack()
     {
-        if(target == null || Vector3.Distance(transform.position, target.position) > attackDistance)
+        if (target == null || Vector3.Distance(transform.position, target.position) > attackDistance)
         {
             CurrentStatus = Status.Trace;
             return;
         }
 
-        if(Time.time >= lastAttackTime + attackinerval)
+        if (Time.time >= lastAttackTime + attackinerval)
         {
             lastAttackTime = Time.time;
 
@@ -142,15 +145,15 @@ public class Zombie : LivingEntity
 
     private void UpdateTrace()
     {
-        if(target != null && Vector3.Distance(transform.position, target.position) < attackDistance)
+        if (target != null && Vector3.Distance(transform.position, target.position) < attackDistance)
         {
             CurrentStatus = Status.Attack;
             return;
         }
 
-        if(target == null && Vector3.Distance(transform.position, target.position)> attackDistance)
+        if (target == null && Vector3.Distance(transform.position, target.position) > attackDistance)
         {
-            
+
             CurrentStatus = Status.Idle;
             return;
         }
@@ -160,7 +163,7 @@ public class Zombie : LivingEntity
 
     private void UpdateIdle()
     {
-        if(target != null && Vector3.Distance(transform.position, target.position) < traceDistance)
+        if (target != null && Vector3.Distance(transform.position, target.position) < traceDistance)
         {
             CurrentStatus = Status.Trace;
             return;
@@ -176,22 +179,22 @@ public class Zombie : LivingEntity
         Transform closet = null;
         float closetDistance = float.MaxValue;
 
-        for(int i =0; i < colliders.Length; ++i)
+        for (int i = 0; i < colliders.Length; ++i)
         {
             float distance = Vector3.Distance(transform.position, colliders[i].transform.position);
-            if(distance < closetDistance)
+            if (distance < closetDistance)
             {
                 closetDistance = distance;
                 closet = colliders[i].transform;
             }
-            
+
         }
         return closet;
     }
 
     private void UpdateDie()
     {
-        
+
     }
 
     public override void OnDamage(float damage, Vector3 hitPoint, Vector3 hitNormal)
@@ -214,6 +217,18 @@ public class Zombie : LivingEntity
         base.Death();
 
         CurrentStatus = Status.Die;
+
+        if(GameManager.instance != null && zombieData != null)
+        {
+            GameManager.instance.AddScore(zombieData.score);
+        }
+
+    }
+
+    
+    public void StartSinking()
+    {
+        
     }
 
 }

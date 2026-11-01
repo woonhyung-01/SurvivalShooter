@@ -1,11 +1,12 @@
 using Microsoft.Unity.VisualStudio.Editor;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerHealth : LivingEntity
 {
     public static readonly int IdDeath = Animator.StringToHash("Death");
 
-    public Image uiHealth;
+    public Slider hpSlider;
 
     public AudioClip hitClip;
     public AudioClip deathClip;
@@ -21,6 +22,13 @@ public class PlayerHealth : LivingEntity
         playerAnimator = GetComponent<Animator>();
         playerMovment = GetComponent<PlayerMovment>();
         playerInput = GetComponent<PlayerInput>();
+        
+    }
+
+    private void Start()
+    {
+        hpSlider.maxValue = startingHealth;
+        hpSlider.value = Health;
     }
 
     protected override void OnEnable()
@@ -29,6 +37,8 @@ public class PlayerHealth : LivingEntity
 
         playerMovment.enabled = true;
         playerInput.enabled = true;
+
+        hpSlider.gameObject.SetActive(true);
 
     }
 
@@ -50,11 +60,16 @@ public class PlayerHealth : LivingEntity
         }
         base.OnDamage(damage, hitPoint, hitNormal);
 
+        hpSlider.value = Health;
+        
+
     }
 
     public override void Death()
     {
         base.Death();
+
+        hpSlider.value = Health;
 
         playerAnimator.SetTrigger(IdDeath);
         playerAuioSource.PlayOneShot(deathClip);
@@ -62,5 +77,13 @@ public class PlayerHealth : LivingEntity
         playerMovment.enabled = false;
         playerInput.enabled = false;
 
+        GameManager.instance.EndGame();
+        
+
+    }
+
+    public void RestartLevel()
+    {
+        
     }
 }
